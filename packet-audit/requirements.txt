@@ -1,0 +1,4 @@
+scapy==2.6.1
+pyyaml==6.0.2
+pytest==8.3.5
+jinja2==3.1.6

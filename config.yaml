@@ -1,0 +1,22 @@
+# Network Packet Sniffer Configuration
+
+capture:
+  interface: null          # null selects the default interface
+  bpf_filter: ""          # Berkeley Packet Filter (e.g. "tcp port 80 or udp port 53")
+  count: 0                 # 0 captures packets indefinitely until Ctrl+C
+  promisc: true            # Enable promiscuous mode
+
+output:
+  console:
+    enabled: true
+    colored: true
+  pcap:
+    enabled: false
+    path: "captures/traffic.pcap"
+  storage:
+    enabled: false
+    type: "sqlite"         # Options: "sqlite", "csv"
+    path: "captures/packets.db"
+
+logging:
+  level: "INFO"            # DEBUG, INFO, WARNING, ERROR

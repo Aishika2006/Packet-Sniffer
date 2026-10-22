@@ -1,0 +1,81 @@
+# Network Traffic Audit Tool — Configuration
+# ============================================
+# All values may be overridden by CLI arguments.
+
+capture:
+  interface: null           # null = Scapy default; use --list-interfaces to see options
+  bpf_filter: ""           # BPF syntax: e.g. "tcp port 80 or udp port 53"
+  count: 0                  # 0 = unlimited until Ctrl+C
+  duration: 0               # seconds; 0 = unlimited
+  promisc: true
+  queue_maxsize: 10000      # bounded queue; overflow drops+counters a drop
+  offline: null             # path to .pcap replay file; null = live capture
+
+audit:
+  rules:
+    cleartext_protocols:
+      enabled: true
+      severity: "HIGH"
+      ports: [21, 23, 25, 80, 110, 143]  # FTP, Telnet, SMTP, HTTP, POP3, IMAP
+
+    deprecated_tls:
+      enabled: true
+      severity: "HIGH"
+      flagged_versions: ["SSL 3.0", "TLS 1.0", "TLS 1.1"]
+
+    allowlist:
+      enabled: false
+      severity: "MEDIUM"
+      allowed_hosts: []       # IP/CIDR strings; empty means everything allowed
+      allowed_ports: []       # destination ports; empty means everything allowed
+
+    dns_anomaly:
+      enabled: true
+      severity: "MEDIUM"
+      nxdomain_rate_threshold: 10    # alerts per minute from single source
+      long_name_threshold: 50        # characters
+      high_entropy_threshold: 4.0    # Shannon entropy bits/char
+
+    port_scan:
+      enabled: true
+      severity: "HIGH"
+      distinct_ports_threshold: 15
+      window_seconds: 10.0
+
+    volume_anomaly:
+      enabled: true
+      severity: "MEDIUM"
+      bytes_per_minute_threshold: 10485760  # 10 MB/min per host
+
+    cleartext_credentials:
+      enabled: true
+      severity: "CRITICAL"
+      patterns: ["Authorization", "password", "passwd", "token", "api_key"]
+
+output:
+  console:
+    enabled: true
+    colored: true
+  pcap:
+    enabled: false
+    path: "captures/audit.pcap"
+  storage:
+    enabled: true
+    type: "sqlite"           # "sqlite" or "csv"
+    path: "captures/packets.db"
+
+audit_trail:
+  path: "reports/audit_trail.jsonl"
+  operator: ""              # fill with your name/ID for the audit record
+
+privacy:
+  log_payload: false         # MUST be explicitly true to log raw payloads; triggers warning
+  redact_headers: true       # redact Authorization, Cookie, Set-Cookie in all outputs
+  retention_days: 30         # delete captures/reports older than N days; 0 = keep forever
+
+report:
+  out_dir: "reports"
+  format: "markdown"         # "markdown" or "html"
+
+logging:
+  level: "INFO"
